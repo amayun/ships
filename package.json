@@ -2,6 +2,7 @@
   "name": "ships",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://amayun.github.io/ships",
   "dependencies": {
     "bem-cn": "^2.1.3",
     "prop-types": "^15.6.1",
