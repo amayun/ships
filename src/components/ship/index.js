@@ -1,4 +1,5 @@
 import {rotateRight} from '../../utils/matrix';
+import {times, rand} from '../../utils/function';
 
 export const DOT_SHAPE = 'DOT_SHAPE';
 export const L_SHAPE = 'L_SHAPE';
@@ -7,9 +8,7 @@ export const I_SHAPE = 'I_SHAPE';
 
 const shipTypes = {
 	[DOT_SHAPE]: {
-		shape: [
-			[[3]]
-		]
+		shape: [[3]]
 	},
 	[L_SHAPE]: {
 		shape: [
@@ -32,11 +31,18 @@ const shipTypes = {
 
 export default class Ship {
 	constructor(type) {
-		this.field = shipTypes[type];
+		this.field = shipTypes[type].shape;
+		this.x = 0;
+		this.y = 0;
 	}
 
-	rotateRight () {
+	rotateRight = () => {
 		this.field = rotateRight(this.field);
 		return this.field;
+	};
+
+	rotateRandomly = () => {
+		const rotateTimes = rand(0, 3);
+		times(this.rotateRight, rotateTimes);
 	}
 }

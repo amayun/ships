@@ -1,0 +1,33 @@
+.field {
+    width: 400px;
+    height: 200px;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.field__cell {
+    box-sizing: border-box;
+    width: 40px;
+    height: 40px;
+    border: 1px solid cadetblue;
+}
+
+.field__cell_empty {
+    background-color: #73f3ff;
+}
+
+.field__cell_destroyed {
+
+}
+
+.field__cell_damaged {
+
+}
+
+.field__cell_ship {
+    background-color: rgba(80, 118, 54, 0.9);
+}
+
+.field__cell_miss {
+
+}
