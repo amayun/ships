@@ -16,12 +16,12 @@
     background-color: #73f3ff;
 }
 
-.field__cell_destroyed {
-
+.field__cell_damaged {
+    background-color: #dccd4c;
 }
 
-.field__cell_damaged {
-
+.field__cell_destroyed {
+    background-color: #dc3c21;
 }
 
 .field__cell_ship {
@@ -29,5 +29,5 @@
 }
 
 .field__cell_miss {
-
+    background-color: #a2a2a2;
 }

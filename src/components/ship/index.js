@@ -34,6 +34,7 @@ export default class Ship {
 		this.field = shipTypes[type].shape;
 		this.x = 0;
 		this.y = 0;
+		this.destroyed = false;
 	}
 
 	rotateRight = () => {
@@ -44,5 +45,10 @@ export default class Ship {
 	rotateRandomly = () => {
 		const rotateTimes = rand(0, 3);
 		times(this.rotateRight, rotateTimes);
+	};
+
+	setCoords(x, y) {
+		this.x = x;
+		this.y = y;
 	}
 }

@@ -7,12 +7,26 @@ import './style.css';
 
 const b = block('field');
 
+export const DOT_EMPTY = 0;
+export const DOT_DESTROYED = 1;
+export const DOT_DAMAGED = 2;
+export const DOT_SHIP = 3;
+export const DOT_MISS = 4;
+
 const cellTypes = {
-	0: 'empty',
-	1: 'destroyed',
-	2: 'damaged',
-	3: 'ship',
-	4: 'miss'
+	[DOT_EMPTY]: 'empty',
+	[DOT_DESTROYED]: 'destroyed',
+	[DOT_DAMAGED]: 'damaged',
+	[DOT_SHIP]: 'ship',
+	[DOT_MISS]: 'miss'
+};
+
+const cellTurns = {
+	[DOT_EMPTY]: DOT_MISS,
+	[DOT_DESTROYED]: DOT_DESTROYED,
+	[DOT_DAMAGED]: DOT_DAMAGED,
+	[DOT_SHIP]: DOT_DAMAGED,
+	[DOT_MISS]: DOT_MISS
 };
 
 export default class Field extends Component {
@@ -34,7 +48,7 @@ export default class Field extends Component {
 		return <div
 			key={`${x}_${y}`}
 			className={b('cell', {[cellTypes[dot]]: true})()}
-			onClick={curry(this.props.onShot, dot, x, y)}
+			onClick={curry(this.props.onShot, dot, cellTurns[dot], x, y)}
 		/>
 	}
 }
