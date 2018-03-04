@@ -2,11 +2,14 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import block from 'bem-cn';
 import Ship from '../ship';
+import GameOver from '../game-over';
 import {times, rand} from '../../utils/function';
 import matrix from '../../utils/matrix';
-import Field, {DOT_SHIP, DOT_DAMAGED, DOT_MISS, DOT_EMPTY} from '../field';
+import Field, {DOT_SHIP, DOT_DAMAGED, DOT_MISS, DOT_EMPTY, cellTurns, DOT_DESTROYED} from '../field';
 
 const b = block('ships');
+
+const SHOOTING_INTERVAL = 200;
 
 export default class Ships extends Component {
 	static propTypes = {
@@ -20,37 +23,46 @@ export default class Ships extends Component {
 
 	constructor(props) {
 		super(props);
-
-		this.state = {
-			field: this._generateEmptyField(),
-			started: false
-		};
-
 		this.ships = [];
+		this.state = this.getInitialState();
+	}
+
+	getInitialState() {
+		return {
+			field: this._getFieldWithRandomlyPlacedShips(),
+			shooting: false,
+			gameOver: false
+		}
 	}
 
 	componentDidMount() {
-		this._placeShipsRandomly();
+		this.restart();
 	}
 
 	render() {
-		const {field} = this.state;
+		const {field, gameOver, shooting} = this.state;
 		return (
 			<div className={b()}>
-				<Field field={field} onShot={this._handleCellClick}/>
+				{<Field field={field}/>}
+				{gameOver && <GameOver onRestart={this.restart}/>}
+				{!shooting && <button onClick={this._startShooting}>Start shooting</button>}
 			</div>
 		);
 	}
+
+	restart = () => {
+		this.ships = [];
+		this.setState(this.getInitialState());
+	};
 
 	_generateEmptyField() {
 		const {fieldSize} = this.props;
 		return times(() => Array(fieldSize).fill(0), fieldSize)
 	}
 
-	_placeShipsRandomly() {
+	_getFieldWithRandomlyPlacedShips() {
 		const {availableShips} = this.props;
-		const {field} = this.state;
-		let newField = matrix.clone(field);
+		let newField = this._generateEmptyField();
 
 		availableShips.forEach(shipType => {
 			const ship = new Ship(shipType);
@@ -60,7 +72,7 @@ export default class Ships extends Component {
 			this.ships.push(ship);
 		});
 
-		this.setState({field: newField});
+		return newField
 	}
 
 	_placeShipRandomly(field, ship) {
@@ -83,9 +95,9 @@ export default class Ships extends Component {
 	_checkPossibleShipPosition(field, ship) {
 		let result = true;
 
-		matrix.forEach(ship.field, (dot, offsetX, offestY) => {
+		matrix.forEach(ship.field, (dot, offsetX, offsetY) => {
 			let x = ship.x + offsetX;
-			let y = ship.y + offestY;
+			let y = ship.y + offsetY;
 			if (field[y] === undefined || field[y][x] === undefined) {
 				result = false;
 			}
@@ -100,29 +112,84 @@ export default class Ships extends Component {
 		return result
 	}
 
-	_handleCellClick = (oldValue, newValue, x, y) => {
-		const {field} = this.state;
-		let newField = matrix.clone(field);
+	_startShooting = () => {
+		const {gameOver, shooting} = this.state;
 
-		newField[y][x] = newValue;
-		if (oldValue === DOT_SHIP) {
-			newField = this._checkShips(newField)
+		if (!shooting) {
+			this.setState({shooting: true});
 		}
 
-		this.setState({field: newField})
+		if(!gameOver) {
+			this._randomShot();
+			setTimeout(() => {
+				this._startShooting()
+			}, SHOOTING_INTERVAL)
+		}
 	};
 
-	_checkShips(field) {
-		let newField = field;
+	_randomShot = () => {
+		const {fieldSize} = this.props;
+		const {field} = this.state;
+
+		const shotX = rand(0, fieldSize - 1);
+		const shotY = rand(0, fieldSize - 1);
+
+		if (field[shotY][shotX] === DOT_SHIP || field[shotY][shotX] === DOT_EMPTY) {
+			this._shot(shotX, shotY);
+		} else {
+			const flatField = matrix.flatMap(field, dot => dot);
+			let flatShot = shotY * fieldSize + shotX;
+
+			for (let delta = 0; delta <= fieldSize * fieldSize; delta++) {
+				if (checkDot(flatField[flatShot + delta])) {
+					flatShot += delta;
+					break;
+				}
+				if (checkDot(flatField[flatShot - delta])) {
+					flatShot -= delta;
+					break;
+				}
+			}
+
+			this._shot(flatShot % fieldSize, Math.floor(flatShot/fieldSize));
+		}
+		
+		function checkDot(dot) {
+			return dot === DOT_SHIP || dot === DOT_EMPTY
+		}
+	};
+
+	_shot(x, y) {
+		const {field} = this.state;
+		let newField = matrix.clone(field);
+		const dot = newField[y][x];
+		newField[y][x] = cellTurns[dot];
+
+		this.setState({field: newField}, () => {
+			if (dot === DOT_SHIP) {
+				this._checkShips()
+			}
+		});
+	}
+
+	_checkShips() {
+		const {field} = this.state;
+		let allShipsAreDestroyed = true;
 
 		this.ships.forEach(ship => {
 			if (!ship.destroyed && this._checkIfShipIsDestroyed(field, ship)) {
 				ship.destroyed = true;
-				newField = this._setBlastZoneAroundDestroyedShip(field, ship);
+				this._setBlastZoneAroundDestroyedShip(ship);
+			}
+
+			if (!ship.destroyed) {
+				allShipsAreDestroyed = false
 			}
 		});
 
-		return newField;
+		if (allShipsAreDestroyed) {
+			this.setState({gameOver: true})
+		}
 	}
 
 	_checkIfShipIsDestroyed(field, ship) {
@@ -136,7 +203,9 @@ export default class Ships extends Component {
 		return result
 	}
 
-	_setBlastZoneAroundDestroyedShip(field, ship) {
+	_setBlastZoneAroundDestroyedShip(ship) {
+		const {field} = this.state;
+
 		if (!ship.destroyed) {
 			return field;
 		}
@@ -149,7 +218,13 @@ export default class Ships extends Component {
 			}
 		});
 
-		return newField;
+		matrix.forEach(ship.field, (dot, offsetX, offsetY) => {
+			if(dot) {
+				newField[ship.y + offsetY][ship.x + offsetX] = DOT_DESTROYED;
+			}
+		});
+
+		this.setState({field: newField});
 	}
 
 	_forEachDotAroundShip(field, ship, iteratee) {

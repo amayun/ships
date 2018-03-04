@@ -5,7 +5,3 @@ export function times(fn, times = 1) {
 export function rand(from, to) {
 	return from + Math.round((to - from) * Math.random());
 }
-
-export function curry(fn, ...args) {
-	return (...nArgs) => fn.apply(this, [...args, ...nArgs]);
-}

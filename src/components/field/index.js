@@ -2,7 +2,6 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import block from 'bem-cn';
 import {flatMap} from '../../utils/matrix';
-import {curry} from '../../utils/function';
 import './style.css';
 
 const b = block('field');
@@ -21,7 +20,7 @@ const cellTypes = {
 	[DOT_MISS]: 'miss'
 };
 
-const cellTurns = {
+export const cellTurns = {
 	[DOT_EMPTY]: DOT_MISS,
 	[DOT_DESTROYED]: DOT_DESTROYED,
 	[DOT_DAMAGED]: DOT_DAMAGED,
@@ -48,7 +47,6 @@ export default class Field extends Component {
 		return <div
 			key={`${x}_${y}`}
 			className={b('cell', {[cellTypes[dot]]: true})()}
-			onClick={curry(this.props.onShot, dot, cellTurns[dot], x, y)}
 		/>
 	}
 }

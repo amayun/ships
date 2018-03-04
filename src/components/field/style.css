@@ -1,8 +1,9 @@
 .field {
     width: 400px;
-    height: 200px;
+    height: 400px;
     display: flex;
     flex-wrap: wrap;
+    margin: 40px auto;
 }
 
 .field__cell {
