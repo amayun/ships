@@ -8,25 +8,25 @@ export const I_SHAPE = 'I_SHAPE';
 const shipTypes = {
 	[DOT_SHAPE]: {
 		shape: [
-			[[1]]
+			[[3]]
 		]
 	},
 	[L_SHAPE]: {
 		shape: [
-			[1, 0],
-			[1, 0],
-			[1, 1]
+			[3, 0],
+			[3, 0],
+			[3, 3]
 		]
 	},
 	[REVERSE_L_SHAPE]: {
 		shape: [
-			[0, 1],
-			[0, 1],
-			[1, 1]
+			[0, 3],
+			[0, 3],
+			[3, 3]
 		]
 	},
 	[I_SHAPE]: {
-		shape: [[1, 1, 1, 1]]
+		shape: [[3, 3, 3, 3]]
 	}
 };
 
