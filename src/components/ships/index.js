@@ -36,10 +36,6 @@ export default class Ships extends Component {
 		}
 	}
 
-	componentDidMount() {
-		this.restart();
-	}
-
 	render() {
 		const {field, gameOver, shooting} = this.state;
 		return (
