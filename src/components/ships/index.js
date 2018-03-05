@@ -6,6 +6,7 @@ import GameOver from '../game-over';
 import {times, rand} from '../../utils/function';
 import matrix from '../../utils/matrix';
 import Field, {DOT_SHIP, DOT_DAMAGED, DOT_MISS, DOT_EMPTY, cellTurns, DOT_DESTROYED} from '../field';
+import './style.css';
 
 const b = block('ships');
 
@@ -45,7 +46,7 @@ export default class Ships extends Component {
 			<div className={b()}>
 				{<Field field={field}/>}
 				{gameOver && <GameOver onRestart={this.restart}/>}
-				{!shooting && <button onClick={this._startShooting}>Start shooting</button>}
+				{!shooting && <button className={b('button')()} onClick={this._startShooting}>Start shooting</button>}
 			</div>
 		);
 	}
